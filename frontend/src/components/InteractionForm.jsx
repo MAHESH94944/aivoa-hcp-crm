@@ -5,6 +5,7 @@ import {
   setFormData,
   fetchSuggestions,
 } from "../features/interactions/interactionsSlice";
+import { Search, Plus } from "lucide-react";
 
 // Helper function to display complex errors from the backend
 const formatError = (error) => {
@@ -18,26 +19,52 @@ const formatError = (error) => {
 
 const InteractionForm = () => {
   const dispatch = useDispatch();
-  // Add 'suggestions' to the data selected from the Redux store
   const { formData, status, error, suggestions } = useSelector(
     (state) => state.interactions
   );
 
-  // This hook automatically fetches new suggestions when the HCP name changes
+  // Automatically fetch suggestions when the HCP name changes
   useEffect(() => {
     if (formData.hcp_name && formData.hcp_name.length > 3) {
-      // Debounce the API call to avoid firing on every keystroke
       const timer = setTimeout(() => {
         dispatch(fetchSuggestions(formData.hcp_name));
       }, 1000);
-
-      return () => clearTimeout(timer); // Cleanup timer on unmount
+      return () => clearTimeout(timer);
     }
   }, [formData.hcp_name, dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(setFormData({ [name]: value }));
+  };
+
+  // Functions for adding materials/samples dispatch to the central Redux store
+  const handleAddMaterial = () => {
+    const newMaterial = prompt(
+      "Enter material name to add:",
+      "OncoBoost Brochure"
+    );
+    if (newMaterial) {
+      const updatedMaterials = [
+        ...(formData.materials_shared || []),
+        newMaterial,
+      ];
+      dispatch(setFormData({ materials_shared: updatedMaterials }));
+    }
+  };
+
+  const handleAddSample = () => {
+    const newSample = prompt(
+      "Enter sample name to add:",
+      "CardioGuard Starter Kit"
+    );
+    if (newSample) {
+      const updatedSamples = [
+        ...(formData.samples_distributed || []),
+        newSample,
+      ];
+      dispatch(setFormData({ samples_distributed: updatedSamples }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -55,9 +82,7 @@ const InteractionForm = () => {
         typeof formData.follow_up_actions === "string"
           ? [formData.follow_up_actions].filter(Boolean)
           : [],
-      materials_shared: [],
-      samples_distributed: [],
-      ai_suggested_followups: [],
+      // materials_shared and samples_distributed are already correct in formData
     };
     dispatch(createInteraction(dataToSubmit));
   };
@@ -71,7 +96,7 @@ const InteractionForm = () => {
         Interaction Details
       </h2>
 
-      {/* --- Form fields are the same --- */}
+      {/* --- Form fields --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
@@ -101,7 +126,7 @@ const InteractionForm = () => {
             <option>Virtual</option>
           </select>
         </div>
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Date
           </label>
@@ -113,7 +138,7 @@ const InteractionForm = () => {
             className="w-full p-2 border border-gray-300 rounded-md"
           />
         </div>
-        <div className="relative">
+        <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
             Time
           </label>
@@ -152,6 +177,65 @@ const InteractionForm = () => {
           className="w-full p-2 border border-gray-300 rounded-md"
         ></textarea>
       </div>
+
+      {/* --- Materials and Samples Section --- */}
+      <div>
+        <h3 className="text-md font-semibold text-gray-700 mb-2">
+          Materials Shared / Samples Distributed
+        </h3>
+        <div className="space-y-4">
+          <div className="p-4 border border-gray-200 rounded-md">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-sm font-medium text-gray-600">
+                Materials Shared
+              </h4>
+              <button
+                type="button"
+                onClick={handleAddMaterial}
+                className="inline-flex items-center gap-2 px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                <Search className="h-4 w-4" /> Search/Add
+              </button>
+            </div>
+            {formData.materials_shared &&
+            formData.materials_shared.length > 0 ? (
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {formData.materials_shared.map((material, index) => (
+                  <li key={index}>{material}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No materials added.</p>
+            )}
+          </div>
+          <div className="p-4 border border-gray-200 rounded-md">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-sm font-medium text-gray-600">
+                Samples Distributed
+              </h4>
+              <button
+                type="button"
+                onClick={handleAddSample}
+                className="inline-flex items-center gap-2 px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                <Plus className="h-4 w-4" /> Add Sample
+              </button>
+            </div>
+            {formData.samples_distributed &&
+            formData.samples_distributed.length > 0 ? (
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {formData.samples_distributed.map((sample, index) => (
+                  <li key={index}>{sample}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No samples added.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* --- Rest of the form fields --- */}
       <div>
         <label className="block text-sm font-medium text-gray-600 mb-2">
           Observed/Inferred HCP Sentiment
@@ -202,7 +286,7 @@ const InteractionForm = () => {
         ></textarea>
       </div>
 
-      {/* --- AI Suggested Follow-ups (Now Dynamic) --- */}
+      {/* --- AI Suggested Follow-ups (Dynamic) --- */}
       <div>
         <h3 className="text-md font-semibold text-gray-700 mb-2">
           AI Suggested Follow-ups
@@ -227,6 +311,7 @@ const InteractionForm = () => {
         )}
       </div>
 
+      {/* --- Submit Button & Error Display --- */}
       <div className="pt-4 border-t border-gray-200 mt-6">
         <button
           type="submit"
@@ -236,7 +321,6 @@ const InteractionForm = () => {
           {status === "loading" ? "Submitting..." : "Log Interaction"}
         </button>
       </div>
-
       {status === "failed" && (
         <p className="text-red-500 text-sm mt-2">{formatError(error)}</p>
       )}

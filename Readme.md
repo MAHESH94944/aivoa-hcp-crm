@@ -5,7 +5,7 @@ A modern CRM (Customer Relationship Management) system for healthcare profession
 ---
 
 <div align="center">
-  <img src="assets/Screenshot 2025-08-19 143041.png" alt="Application Screenshot" width="800"/>
+  <img src="assets/image.png" alt="Application Screenshot" width="800"/>
   <br/>
   <br/>
   <h1>🤖 AI-First CRM for Healthcare Professionals</h1>
