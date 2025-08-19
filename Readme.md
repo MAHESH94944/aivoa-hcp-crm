@@ -107,6 +107,27 @@ mysql -u root -p
 
 # Create the database for the project
 CREATE DATABASE hcp_crm;
+USE hcp_crm;
+
+-- Table creation for hcp_interactions
+CREATE TABLE hcp_interactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  hcp_name VARCHAR(255) NOT NULL,
+  interaction_type ENUM('Meeting','Call','Virtual') NOT NULL,
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  attendees JSON,
+  topics_discussed TEXT NOT NULL,
+  voice_note_summary TEXT,
+  materials_shared JSON,
+  samples_distributed JSON,
+  sentiment ENUM('Positive','Neutral','Negative') NOT NULL,
+  outcomes TEXT,
+  follow_up_actions JSON,
+  ai_suggested_followups JSON,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 exit;
 
 # 5. Configure Environment Variables
