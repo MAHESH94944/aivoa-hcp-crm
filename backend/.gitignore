@@ -1,0 +1,32 @@
+cd "D:/Resume/Off Campus Internship/AIVOA/Round_2_and_3_Assignment"
+
+# Create .gitignore for Python + Node + common junk
+cat > .gitignore << 'EOF'
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+
+# FastAPI/Build
+*.sqlite3
+*.db
+*.log
+
+# Node/React
+node_modules/
+dist/
+build/
+*.local
+
+# OS/Editors
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+EOF
